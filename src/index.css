@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-aces-blue: #0561FF;
+  --color-landio-purple: #7047EB;
+  --color-aces-dark: #0B0C10;
+  --color-aces-black: #000000;
+  --color-aces-card: rgba(255, 255, 255, 0.03);
+  --color-aces-border: rgba(255, 255, 255, 0.08);
+}
+
+@layer base {
+  body {
+    @apply bg-aces-black text-white font-sans antialiased selection:bg-landio-purple/30;
+  }
+}
+
+@layer utilities {
+  .landio-aura {
+    background: radial-gradient(circle at 50% 50%, var(--color-landio-purple) 0%, transparent 70%);
+    filter: blur(140px);
+    opacity: 0.15;
+  }
+  
+  .landio-card {
+    @apply bg-aces-card border border-aces-border rounded-[2rem] backdrop-blur-3xl shadow-2xl;
+  }
+  
+  .landio-glass {
+    @apply bg-white/[0.02] border border-white/5 backdrop-blur-2xl;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(5, 97, 255, 0.3);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
