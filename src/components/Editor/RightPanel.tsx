@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Settings, Sparkles, X, ChevronRight, Type, Move, Palette, Layout, Send, Bot, MousePointer2, Github, Link2, Image, Search, Upload, Plus } from 'lucide-react';
+import { Settings, Sparkles, X, ChevronRight, Type, Move, Palette, Layout, Send, Bot, MousePointer2, Github, Link2, Image, Search, Upload, Plus, AlignLeft, AlignCenter, AlignRight, AlignJustify, ArrowUp, ArrowDown, MoveVertical, PlayCircle, Zap } from 'lucide-react';
 import { EditableElement } from '../../types';
 import { GoogleGenAI } from '@google/genai';
 
@@ -281,6 +281,61 @@ export default function RightPanel({
                  </div>
                  <div className="space-y-6">
                     <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
+                        <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3">Dimensions</label>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div>
+                              <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-2">Width</p>
+                              <input 
+                                 type="text" 
+                                 value={selectedElement.style.width?.toString() || 'auto'}
+                                 onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, width: e.target.value } })}
+                                 className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2 text-xs font-mono text-white/60 focus:outline-none"
+                              />
+                           </div>
+                           <div>
+                              <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-2">Height</p>
+                              <input 
+                                 type="text" 
+                                 value={selectedElement.style.height?.toString() || 'auto'}
+                                 onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, height: e.target.value } })}
+                                 className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2 text-xs font-mono text-white/60 focus:outline-none"
+                              />
+                           </div>
+                        </div>
+                    </div>
+
+                    {selectedElement.type === 'container' && (
+                        <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
+                            <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3">Container Logic</label>
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-2">Item Spacing (Gap)</p>
+                                    <input 
+                                        type="text" 
+                                        value={selectedElement.style.gap?.toString() || '0px'}
+                                        onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, display: 'flex', flexDirection: selectedElement.style.flexDirection || 'column', gap: e.target.value } })}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2 text-xs font-mono text-white/60"
+                                    />
+                                </div>
+                                <div className="flex bg-white/5 rounded-xl p-1">
+                                    <button 
+                                        onClick={() => updateElement(selectedElement.id, { style: { ...selectedElement.style, display: 'flex', flexDirection: 'row' } })}
+                                        className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all ${selectedElement.style.flexDirection === 'row' ? 'bg-landio-purple text-white shadow-lg' : 'text-white/20 hover:text-white/40'}`}
+                                    >
+                                        Rows
+                                    </button>
+                                    <button 
+                                        onClick={() => updateElement(selectedElement.id, { style: { ...selectedElement.style, display: 'flex', flexDirection: 'column' } })}
+                                        className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all ${selectedElement.style.flexDirection === 'column' || !selectedElement.style.flexDirection ? 'bg-landio-purple text-white shadow-lg' : 'text-white/20 hover:text-white/40'}`}
+                                    >
+                                        Columns
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
                         <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3">Font Scale</label>
                         <div className="flex items-center gap-4">
                            <input 
@@ -294,7 +349,9 @@ export default function RightPanel({
                     </div>
                     
                     <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
-                        <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3">Chromatist</label>
+                        <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3">
+                          {selectedElement.type === 'icon' ? 'Icon Color' : 'Color / Text Color'}
+                        </label>
                         <div className="flex items-center gap-5">
                            <div className="relative group/color">
                               <input 
@@ -306,8 +363,164 @@ export default function RightPanel({
                               />
                            </div>
                            <div className="flex flex-col gap-1">
-                              <span className="text-xs font-mono text-white/90 uppercase tracking-tighter">{selectedElement.style.color}</span>
+                              <span className="text-xs font-mono text-white/90 uppercase tracking-tighter">{selectedElement.style.color || '#ffffff'}</span>
                               <span className="text-[9px] text-white/10 font-black uppercase tracking-widest">Hex Code</span>
+                           </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
+                        <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3">Background Color</label>
+                        <div className="flex items-center gap-5">
+                           <div className="relative group/color">
+                              <input 
+                                type="color" 
+                                value={String(selectedElement.style.backgroundColor || 'transparent')}
+                                onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, backgroundColor: e.target.value } })}
+                                className="w-12 h-12 rounded-2xl bg-transparent cursor-pointer border-2 border-white/5 p-0 transform hover:scale-105 transition-all shadow-xl"
+                                style={{ backgroundColor: String(selectedElement.style.backgroundColor || '#000000') }}
+                              />
+                           </div>
+                           <div className="flex flex-col gap-1">
+                              <span className="text-xs font-mono text-white/90 uppercase tracking-tighter">{selectedElement.style.backgroundColor || 'transparent'}</span>
+                              <span className="text-[9px] text-white/10 font-black uppercase tracking-widest">Hex Code</span>
+                           </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
+                        <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3 font-display">Layout & Alignment</label>
+                        
+                        <div className="space-y-6">
+                           <div>
+                              <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-3">Horizontal Alignment</p>
+                              <div className="flex bg-white/5 rounded-xl p-1 gap-1">
+                                 {[
+                                    { id: 'flex-start', icon: AlignLeft, label: 'Start' },
+                                    { id: 'center', icon: AlignCenter, label: 'Center' },
+                                    { id: 'flex-end', icon: AlignRight, label: 'End' }
+                                 ].map(align => (
+                                    <button
+                                       key={align.id}
+                                       onClick={() => {
+                                          const margin = align.id === 'center' ? { marginLeft: 'auto', marginRight: 'auto' } : align.id === 'flex-end' ? { marginLeft: 'auto', marginRight: '0' } : { marginLeft: '0', marginRight: 'auto' };
+                                          updateElement(selectedElement.id, { style: { ...selectedElement.style, alignSelf: align.id as any, display: 'block', ...margin } });
+                                       }}
+                                       className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg transition-all ${selectedElement.style.alignSelf === align.id ? 'bg-landio-purple text-white shadow-lg' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}
+                                    >
+                                       <align.icon size={14} />
+                                       <span className="text-[7px] uppercase font-black tracking-tighter">{align.label}</span>
+                                    </button>
+                                 ))}
+                              </div>
+                           </div>
+
+                           <div>
+                              <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-3">Text Alignment</p>
+                              <div className="flex bg-white/5 rounded-xl p-1 gap-1">
+                                 {[
+                                    { id: 'left', icon: AlignLeft },
+                                    { id: 'center', icon: AlignCenter },
+                                    { id: 'right', icon: AlignRight },
+                                    { id: 'justify', icon: AlignJustify }
+                                 ].map(align => (
+                                    <button
+                                       key={align.id}
+                                       onClick={() => updateElement(selectedElement.id, { style: { ...selectedElement.style, textAlign: align.id as any } })}
+                                       className={`flex-1 flex items-center justify-center py-2 rounded-lg transition-all ${selectedElement.style.textAlign === align.id ? 'bg-blue-500 text-white shadow-lg' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}
+                                    >
+                                       <align.icon size={14} />
+                                    </button>
+                                 ))}
+                              </div>
+                           </div>
+
+                           <div>
+                              <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-3">Vertical Distribution</p>
+                              <div className="flex bg-white/5 rounded-xl p-1 gap-1">
+                                 {[
+                                    { id: 'Top', icon: ArrowUp, label: 'Top' },
+                                    { id: 'Middle', icon: MoveVertical, label: 'Middle' },
+                                    { id: 'Bottom', icon: ArrowDown, label: 'Bottom' }
+                                 ].map(dist => (
+                                    <button
+                                       key={dist.id}
+                                       onClick={() => {
+                                          let margin = {};
+                                          if (dist.label === 'Top') margin = { marginTop: '0', marginBottom: 'auto' };
+                                          if (dist.label === 'Middle') margin = { marginTop: 'auto', marginBottom: 'auto' };
+                                          if (dist.label === 'Bottom') margin = { marginTop: 'auto', marginBottom: '0' };
+                                          updateElement(selectedElement.id, { style: { ...selectedElement.style, ...margin } });
+                                       }}
+                                       className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg transition-all text-white/20 hover:text-white/40 hover:bg-white/5`}
+                                    >
+                                       <dist.icon size={14} />
+                                       <span className="text-[7px] uppercase font-black tracking-tighter">{dist.label}</span>
+                                    </button>
+                                 ))}
+                              </div>
+                           </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-aces-card p-5 rounded-2xl border border-aces-border">
+                        <label className="text-[9px] text-white/10 uppercase font-black tracking-[0.2em] block mb-3 font-display">Motion & Entrance</label>
+                        <div className="space-y-6">
+                           <div>
+                              <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-3">Entrance Effect</p>
+                              <select 
+                                 value={selectedElement.animation?.type || 'none'}
+                                 onChange={(e) => updateElement(selectedElement.id, { 
+                                    animation: { 
+                                       type: e.target.value as any, 
+                                       delay: selectedElement.animation?.delay || 0.2,
+                                       duration: selectedElement.animation?.duration || 0.6
+                                    } 
+                                 })}
+                                 className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-xs text-white/80 focus:outline-none focus:border-landio-purple/30 appearance-none font-display uppercase tracking-wider bg-[#0d0d14]"
+                              >
+                                 <option value="none">None</option>
+                                 <option value="fade-in">Fade In</option>
+                                 <option value="slide-up">Slide Up</option>
+                                 <option value="slide-left">Slide Left</option>
+                                 <option value="slide-right">Slide Right</option>
+                                 <option value="zoom-in">Zoom In</option>
+                              </select>
+                           </div>
+
+                           <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                 <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-3">Delay (s)</p>
+                                 <input 
+                                    type="number" 
+                                    step="0.1"
+                                    min="0"
+                                    value={selectedElement.animation?.delay || 0}
+                                    onChange={(e) => updateElement(selectedElement.id, { 
+                                       animation: { 
+                                          ...(selectedElement.animation || { type: 'none', duration: 0.6 }),
+                                          delay: parseFloat(e.target.value) 
+                                       } 
+                                    })}
+                                    className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-xs font-mono text-white/60"
+                                 />
+                              </div>
+                              <div>
+                                 <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-3">Duration (s)</p>
+                                 <input 
+                                    type="number" 
+                                    step="0.1"
+                                    min="0.1"
+                                    value={selectedElement.animation?.duration || 0.6}
+                                    onChange={(e) => updateElement(selectedElement.id, { 
+                                       animation: { 
+                                          ...(selectedElement.animation || { type: 'none', delay: 0 }),
+                                          duration: parseFloat(e.target.value) 
+                                       } 
+                                    })}
+                                    className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-xs font-mono text-white/60"
+                                 />
+                              </div>
                            </div>
                         </div>
                     </div>

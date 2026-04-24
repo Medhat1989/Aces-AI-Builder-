@@ -1,7 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ChevronLeft, Monitor, Tablet, Smartphone, ExternalLink } from 'lucide-react';
+import { 
+  ChevronLeft, Monitor, Tablet, Smartphone, ExternalLink, 
+  MapPin, HelpCircle, Star, Heart, Smile, Settings, Info, 
+  CheckCircle, AlertTriangle, Calendar, Camera, Bell, User, 
+  Mail, Link as LinkIcon, ShoppingBag, CreditCard, Laptop, 
+  Play, Share2, Github, Twitter, Linkedin, Facebook, Instagram, 
+  Youtube, Cloud, Moon, Sun, Zap, Flame, Droplets, Wind, 
+  Trophy, Target, Rocket, Shield, Lock, Unlock, Key, Globe, 
+  Compass, Navigation, Flag, Home, Briefcase, GraduationCap, 
+  Hammer, Palette, Music, Tv, Watch, Headphones, Mic, 
+  Volume2, Battery, Wifi, Database, Cpu, Layers, Layout, 
+  Columns, Rows, Grid 
+} from 'lucide-react';
+
+const ICON_COMPONENTS: Record<string, any> = {
+  Star, Heart, Smile, Settings, Info, CheckCircle, AlertTriangle, Calendar, 
+  Camera, Bell, User, Mail, LinkIcon, ShoppingBag, CreditCard,
+  MapPin, Laptop, Play, Share2, HelpCircle, Github, Twitter, Linkedin, 
+  Facebook, Instagram, Youtube, Cloud, Moon, Sun, Zap, Flame, Droplets, 
+  Wind, Trophy, Target, Rocket, Shield, Lock, Unlock, Key, Globe, 
+  Compass, Navigation, Flag, Home, Briefcase, GraduationCap, Hammer, 
+  Palette, Music, Tv, Smartphone, Watch, Headphones, Mic, Volume2, 
+  Battery, Wifi, Database, Cpu, Layers, Layout, Columns, Rows, Grid
+};
 import { HONDA_TEMPLATES } from '../constants';
 import { EditableElement } from '../types';
 import { getInitialElements } from '../utils/templateUtils';
@@ -34,11 +57,25 @@ export default function Preview() {
       if (!el) return null;
 
       const style = { ...el.style };
+      const animProps = el.animation && el.animation.type !== 'none' ? {
+        initial: (el.animation.type as string) === 'fade-in' ? { opacity: 0 } :
+                 (el.animation.type as string) === 'slide-up' ? { opacity: 0, y: 20 } :
+                 (el.animation.type as string) === 'slide-left' ? { opacity: 0, x: -20 } :
+                 (el.animation.type as string) === 'slide-right' ? { opacity: 0, x: 20 } :
+                 (el.animation.type as string) === 'zoom-in' ? { opacity: 0, scale: 0.9 } : {},
+        whileInView: { opacity: 1, y: 0, x: 0, scale: 1 },
+        viewport: { once: true },
+        transition: { 
+          delay: el.animation.delay || 0, 
+          duration: el.animation.duration || 0.6,
+          ease: 'easeOut'
+        }
+      } : {};
       
       if (el.type === 'container') {
         const isWheelGraphic = id === 'wheel-graphic';
         return (
-          <div key={id} style={{ ...style, width: '100%', position: 'relative' }}>
+          <motion.div key={id} style={{ width: '100%', position: 'relative', ...style }} {...animProps}>
             {el.children && renderElements(el.children)}
             {isWheelGraphic && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -61,35 +98,77 @@ export default function Preview() {
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
         );
       }
 
       if (el.type === 'image' || el.type === 'video') {
         return (
-          <div key={id} style={style}>
+          <motion.div key={id} style={style} {...animProps}>
             {el.type === 'image' ? (
               <img src={el.content} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             ) : (
               <video src={el.content} controls className="w-full h-auto rounded-xl" />
             )}
-          </div>
+          </motion.div>
         );
       }
 
       if (el.type === 'text') {
         return (
-          <div key={id} style={style} className="font-sans">
+          <motion.div key={id} style={style} {...animProps}>
             {el.content}
-          </div>
+          </motion.div>
         );
       }
 
       if (el.type === 'button') {
         return (
-          <button key={id} style={style}>
+          <motion.button key={id} style={style} {...animProps}>
             {el.content}
-          </button>
+          </motion.button>
+        );
+      }
+
+      if (el.type === 'icon') {
+        const Icon = ICON_COMPONENTS[el.content] || HelpCircle;
+        return (
+          <motion.div key={id} style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center' }} {...animProps}>
+            <Icon size="100%" />
+          </motion.div>
+        );
+      }
+
+      if (el.type === 'code') {
+        return (
+          <motion.div 
+            key={id} 
+            style={style}
+            dangerouslySetInnerHTML={{ __html: el.content }}
+            {...animProps}
+          />
+        );
+      }
+
+      if (el.type === 'map') {
+        return (
+          <motion.div key={id} style={style} {...animProps}>
+            <iframe 
+              title="Google Map"
+              width="100%" 
+              height="100%" 
+              frameBorder="0" 
+              style={{ border: 0 }}
+              src={el.content || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.835434509374!2d-122.4194155!3d37.7749295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085809c6c8f4459%3A0xb10ed6d9b5050fa5!2sTwitter%20HQ!5e0!3m2!1sen!2sus!4v1620000000000!5m2!1sen!2sus'}
+              allowFullScreen 
+            />
+          </motion.div>
+        );
+      }
+
+      if (el.type === 'shape') {
+        return (
+          <motion.div key={id} style={style} {...animProps} />
         );
       }
 
@@ -97,7 +176,7 @@ export default function Preview() {
     });
   };
 
-  const allChildren = Object.values(elements).flatMap(e => e.children || []);
+  const allChildren = (Object.values(elements) as EditableElement[]).flatMap(e => e.children || []);
   const rootIds = Object.keys(elements).filter(id => !allChildren.includes(id));
 
   return (
@@ -153,7 +232,11 @@ export default function Preview() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          style={{ width: containerWidths[device] }}
+          style={{ 
+            width: containerWidths[device],
+            transform: 'translate3d(0,0,0)', // Contain fixed elements to the simulated device
+            isolation: 'isolate'
+          }}
           className="bg-white text-black shadow-2xl transition-all duration-500 min-h-screen overflow-x-hidden relative z-10"
         >
           {renderElements(rootIds)}

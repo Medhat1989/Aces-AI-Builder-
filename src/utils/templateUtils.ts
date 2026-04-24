@@ -285,7 +285,7 @@ export const getInitialElements = (templateId: string): Record<string, EditableE
         id: 'nav',
         type: 'container',
         content: '',
-        style: { backgroundColor: 'rgba(2, 2, 5, 0.8)', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 60px', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'sticky', top: '0', zIndex: '50', backdropFilter: 'blur(20px)' },
+        style: { position: 'sticky', top: '24px', margin: '0 auto', width: '95%', maxWidth: '1400px', height: '80px', backgroundColor: 'rgba(2, 2, 5, 0.7)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '100px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', zIndex: '100' },
         children: ['nav-logo', 'nav-links', 'nav-cta']
       },
       'nav-logo': {

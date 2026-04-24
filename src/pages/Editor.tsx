@@ -5,6 +5,7 @@ import TopBar from '../components/Editor/TopBar';
 import LeftPanel from '../components/Editor/LeftPanel';
 import RightPanel from '../components/Editor/RightPanel';
 import MainCanvas from '../components/Editor/MainCanvas';
+import AddPanel from '../components/Editor/AddPanel';
 import { HONDA_TEMPLATES, LOGO_URL } from '../constants';
 import { EditableElement } from '../types';
 import { getInitialElements } from '../utils/templateUtils';
@@ -66,30 +67,45 @@ export default function Editor() {
     addToHistory(newElements);
   };
 
-  const addElement = (type: 'image' | 'video', content: string) => {
+  const addElement = (type: EditableElement['type'], content: string, style: React.CSSProperties = {}) => {
     const elId = `${type}-${Date.now()}`;
+    const defaultStyles: Record<string, React.CSSProperties> = {
+      image: { maxWidth: '100%', height: 'auto', margin: '20px auto', borderRadius: '12px' },
+      video: { margin: '20px auto' },
+      text: { fontSize: '18px', color: '#ffffff', margin: '10px 0', width: '100%' },
+      button: { padding: '12px 24px', backgroundColor: '#7047eb', color: '#ffffff', borderRadius: '8px', border: 'none', cursor: 'pointer', margin: '10px 0' },
+      icon: { width: '48px', height: '48px', color: '#7047eb', margin: '10px' },
+      code: { margin: '20px 0', width: '100%' },
+      map: { width: '100%', height: '400px', borderRadius: '12px', margin: '20px 0' },
+      shape: { width: '100px', height: '100px', backgroundColor: '#7047eb', borderRadius: '0px' }
+    };
+
     const newElement: EditableElement = {
       id: elId,
       type,
       content,
-      style: type === 'image' ? { maxWidth: '100%', height: 'auto', margin: '20px auto', borderRadius: '12px' } : { margin: '20px auto' },
+      style: { ...(defaultStyles[type] || {}), ...style },
     };
 
-    const root = elements['root'] || elements['hero-section'];
-    if (!root) return;
+    const root = selectedId ? (elements[selectedId]?.type === 'container' ? elements[selectedId] : null) : null;
+    const parent = root || elements['root'] || elements['hero-section'] || (Object.values(elements) as EditableElement[]).find(e => e.type === 'container');
+    
+    if (!parent) return;
     
     const newElements = {
       ...elements,
       [elId]: newElement,
-      [root.id]: {
-        ...root,
-        children: [...(root.children || []), elId]
+      [parent.id]: {
+        ...parent,
+        children: [...(parent.children || []), elId]
       }
     };
 
     setElements(newElements);
     addToHistory(newElements);
-    setMediaLibrary(prev => Array.from(new Set([...prev, content])));
+    if (type === 'image') {
+      setMediaLibrary(prev => Array.from(new Set([...prev, content])));
+    }
     setSelectedId(elId);
   };
 
@@ -153,8 +169,15 @@ export default function Editor() {
         onDashboard={handleDashboard}
       />
       
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         <LeftPanel onAddMedia={addElement} activeTool={activeTool} onToolChange={setActiveTool} />
+        
+        <AddPanel 
+          isOpen={activeTool === 'Add'} 
+          onClose={() => setActiveTool('')} 
+          onAdd={addElement}
+          mediaLibrary={mediaLibrary}
+        />
         
         <div className="flex-1 overflow-auto bg-[#050507] flex flex-col items-center p-12 scrollbar-hide relative transition-colors duration-700">
           {/* Landio Aura - Background Glow */}
@@ -166,6 +189,7 @@ export default function Editor() {
             setSelectedId={setSelectedId} 
             device={device}
             updateElement={updateElement}
+            deleteElement={deleteElement}
             mediaLibrary={mediaLibrary}
             onAddMedia={addElement}
           />

@@ -11,7 +11,7 @@ export default function LeftPanel({ onAddMedia, activeTool, onToolChange }: Left
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePlusClick = () => {
-    onToolChange('Media');
+    onToolChange('Add');
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

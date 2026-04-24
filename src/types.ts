@@ -10,10 +10,15 @@ export interface Template {
 
 export interface EditableElement {
   id: string;
-  type: 'text' | 'image' | 'button' | 'container' | 'video';
+  type: 'text' | 'image' | 'button' | 'container' | 'video' | 'icon' | 'code' | 'map' | 'shape';
   content: string;
   style: React.CSSProperties;
   children?: string[]; // IDs of children
+  animation?: {
+    type: 'none' | 'fade' | 'slide-up' | 'slide-down' | 'zoom';
+    delay: number;
+    duration: number;
+  };
 }
 
 export interface EditorState {
