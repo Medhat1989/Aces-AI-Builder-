@@ -31,4 +31,25 @@ export const HONDA_TEMPLATES = [
     thumbnail: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=1080',
     category: 'Modern',
   },
+  {
+    id: 'honda-sport-v2',
+    name: 'CR-V Sport Edition',
+    description: 'High-energy layout focused on action, capability, and modern adventure enthusiasts.',
+    thumbnail: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=1080',
+    category: 'Sport',
+  },
+  {
+    id: 'honda-minimal',
+    name: 'Minimalist Dealer v1',
+    description: 'Clean, white-space focused layout for a premium, boutique dealership feel.',
+    thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1080',
+    category: 'Minimalist',
+  },
+  {
+    id: 'honda-future',
+    name: 'Future Drive Framework',
+    description: 'Dark-mode, futuristic interface with neon accents and advanced vehicle visualization.',
+    thumbnail: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1080',
+    category: 'Future',
+  },
 ];

@@ -12,7 +12,12 @@ import {
   Compass, Navigation, Flag, Home, Briefcase, GraduationCap, 
   Hammer, Palette, Music, Tv, Watch, Headphones, Mic, 
   Volume2, Battery, Wifi, Database, Cpu, Layers, Layout, 
-  Columns, Rows, Grid 
+  Columns, Rows, Grid, Search, Circle, Square, Triangle, 
+  Ghost, Box, Navigation2, ArrowUp, ArrowDown, MoveVertical, 
+  X, Plus, Phone, MessageSquare, AtSign, DollarSign, Tag, 
+  HardDrive, Car, Fuel, Activity, Gauge, Key as KeyIcon, 
+  Wrench, Cog, Truck, Dribbble, Slack, Twitch, Music2,
+  Heading1, Heading2
 } from 'lucide-react';
 
 const ICON_COMPONENTS: Record<string, any> = {
@@ -23,7 +28,12 @@ const ICON_COMPONENTS: Record<string, any> = {
   Wind, Trophy, Target, Rocket, Shield, Lock, Unlock, Key, Globe, 
   Compass, Navigation, Flag, Home, Briefcase, GraduationCap, Hammer, 
   Palette, Music, Tv, Smartphone, Watch, Headphones, Mic, Volume2, 
-  Battery, Wifi, Database, Cpu, Layers, Layout, Columns, Rows, Grid
+  Battery, Wifi, Database, Cpu, Layers, Layout, Columns, Rows, Grid,
+  Search, Circle, Square, Triangle, Ghost, Box, Navigation2, 
+  ArrowUp, ArrowDown, MoveVertical, X, Plus, Phone, MessageSquare, 
+  AtSign, DollarSign, Tag, HardDrive, Car, Fuel, Activity, Gauge, 
+  KeyIcon, Wrench, Cog, Truck, Dribbble, Slack, Twitch, Music2,
+  Heading1, Heading2
 };
 import { HONDA_TEMPLATES } from '../constants';
 import { EditableElement } from '../types';
@@ -37,10 +47,20 @@ export default function Preview() {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   useEffect(() => {
-    const saved = localStorage.getItem(`preview_data_${id}`);
-    if (saved) {
-      setElements(JSON.parse(saved));
-    } else {
+    try {
+      const saved = localStorage.getItem(`preview_data_${id}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+          setElements(parsed);
+        } else {
+          setElements(getInitialElements(id || ''));
+        }
+      } else {
+        setElements(getInitialElements(id || ''));
+      }
+    } catch (e) {
+      console.error('Error loading preview data:', e);
       setElements(getInitialElements(id || ''));
     }
   }, [id]);
@@ -52,30 +72,30 @@ export default function Preview() {
   };
 
   const renderElements = (elementIds: string[]) => {
-    return elementIds.map(id => {
-      const el = elements[id];
+    return elementIds.map(elId => {
+      const el = elements[elId];
       if (!el) return null;
 
       const style = { ...el.style };
-      const animProps = el.animation && el.animation.type !== 'none' ? {
-        initial: (el.animation.type as string) === 'fade-in' ? { opacity: 0 } :
-                 (el.animation.type as string) === 'slide-up' ? { opacity: 0, y: 20 } :
-                 (el.animation.type as string) === 'slide-left' ? { opacity: 0, x: -20 } :
-                 (el.animation.type as string) === 'slide-right' ? { opacity: 0, x: 20 } :
-                 (el.animation.type as string) === 'zoom-in' ? { opacity: 0, scale: 0.9 } : {},
+      const animationType = el.animation?.type || 'none';
+      const animProps = animationType !== 'none' ? {
+        initial: animationType === 'fade' ? { opacity: 0 } :
+                 animationType === 'slide-up' ? { opacity: 0, y: 20 } :
+                 animationType === 'slide-down' ? { opacity: 0, y: -20 } :
+                 animationType === 'zoom' ? { opacity: 0, scale: 0.9 } : {},
         whileInView: { opacity: 1, y: 0, x: 0, scale: 1 },
         viewport: { once: true },
         transition: { 
-          delay: el.animation.delay || 0, 
-          duration: el.animation.duration || 0.6,
+          delay: el.animation?.delay || 0, 
+          duration: el.animation?.duration || 0.6,
           ease: 'easeOut'
         }
       } : {};
       
       if (el.type === 'container') {
-        const isWheelGraphic = id === 'wheel-graphic';
+        const isWheelGraphic = elId === 'wheel-graphic';
         return (
-          <motion.div key={id} style={{ width: '100%', position: 'relative', ...style }} {...animProps}>
+          <motion.div key={elId} style={{ width: '100%', position: 'relative', ...style }} {...animProps}>
             {el.children && renderElements(el.children)}
             {isWheelGraphic && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -102,21 +122,34 @@ export default function Preview() {
         );
       }
 
-      if (el.type === 'image' || el.type === 'video') {
+      if (el.type === 'image') {
         return (
-          <motion.div key={id} style={style} {...animProps}>
-            {el.type === 'image' ? (
-              <img src={el.content} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-            ) : (
-              <video src={el.content} controls className="w-full h-auto rounded-xl" />
-            )}
+          <motion.div key={elId} style={style} {...animProps}>
+            <img 
+              src={el.content} 
+              alt="" 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </motion.div>
+        );
+      }
+
+      if (el.type === 'video') {
+        return (
+          <motion.video 
+            key={elId} 
+            src={el.content} 
+            controls 
+            style={style}
+            {...animProps}
+          />
         );
       }
 
       if (el.type === 'text') {
         return (
-          <motion.div key={id} style={style} {...animProps}>
+          <motion.div key={elId} style={style} {...animProps}>
             {el.content}
           </motion.div>
         );
@@ -124,7 +157,7 @@ export default function Preview() {
 
       if (el.type === 'button') {
         return (
-          <motion.button key={id} style={style} {...animProps}>
+          <motion.button key={elId} style={style} {...animProps}>
             {el.content}
           </motion.button>
         );
@@ -133,7 +166,7 @@ export default function Preview() {
       if (el.type === 'icon') {
         const Icon = ICON_COMPONENTS[el.content] || HelpCircle;
         return (
-          <motion.div key={id} style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center' }} {...animProps}>
+          <motion.div key={elId} style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center' }} {...animProps}>
             <Icon size="100%" />
           </motion.div>
         );
@@ -142,7 +175,7 @@ export default function Preview() {
       if (el.type === 'code') {
         return (
           <motion.div 
-            key={id} 
+            key={elId} 
             style={style}
             dangerouslySetInnerHTML={{ __html: el.content }}
             {...animProps}
@@ -152,9 +185,9 @@ export default function Preview() {
 
       if (el.type === 'map') {
         return (
-          <motion.div key={id} style={style} {...animProps}>
+          <motion.div key={elId} style={style} {...animProps}>
             <iframe 
-              title="Google Map"
+              title="Map"
               width="100%" 
               height="100%" 
               frameBorder="0" 
@@ -168,7 +201,7 @@ export default function Preview() {
 
       if (el.type === 'shape') {
         return (
-          <motion.div key={id} style={style} {...animProps} />
+          <motion.div key={elId} style={style} {...animProps} />
         );
       }
 
@@ -180,64 +213,56 @@ export default function Preview() {
   const rootIds = Object.keys(elements).filter(id => !allChildren.includes(id));
 
   return (
-    <div className="min-h-screen bg-[#020204] flex flex-col font-sans">
-      <div className="h-16 bg-black border-b border-white/10 px-6 flex items-center justify-between z-50 backdrop-blur-md">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => window.close()}
-            className="p-2 hover:bg-white/10 rounded-full text-white transition-colors"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className="flex flex-col">
-            <span className="text-white text-xs font-black tracking-[0.2em] uppercase">{template.name}</span>
-            <span className="text-blue-500/50 text-[9px] font-bold uppercase tracking-[0.3em]">Precision Preview</span>
-          </div>
-        </div>
-
-        <div className="flex items-center bg-[#0d0d14] border border-white/10 rounded-xl p-1 hidden md:flex">
+    <div className="min-h-screen bg-[#020204] font-sans overflow-hidden">
+      {/* Floating Control Panel */}
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 p-1.5 bg-[#0B0C11]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+        <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
           <button 
             onClick={() => setDevice('desktop')}
-            className={`p-2 rounded-lg transition-all ${device === 'desktop' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-white/20 hover:text-white/40'}`}
+            className={`p-2 rounded-lg transition-all ${device === 'desktop' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
+            title="Desktop View"
           >
-            <Monitor size={16} />
+            <Monitor size={14} />
           </button>
           <button 
             onClick={() => setDevice('tablet')}
-            className={`p-2 rounded-lg transition-all ${device === 'tablet' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-white/20 hover:text-white/40'}`}
+            className={`p-2 rounded-lg transition-all ${device === 'tablet' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
+            title="Tablet View"
           >
-            <Tablet size={16} />
+            <Tablet size={14} />
           </button>
           <button 
             onClick={() => setDevice('mobile')}
-            className={`p-2 rounded-lg transition-all ${device === 'mobile' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-white/20 hover:text-white/40'}`}
+            className={`p-2 rounded-lg transition-all ${device === 'mobile' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
+            title="Mobile View"
           >
-            <Smartphone size={16} />
+            <Smartphone size={14} />
           </button>
         </div>
-
-        <div className="flex gap-4">
-          <button 
-            onClick={() => navigate(`/editor/${id}`)}
-            className="bg-white text-black px-6 py-2 rounded-full text-[10px] font-bold tracking-widest hover:bg-gray-200 transition-all shadow-xl shadow-white/5 flex items-center gap-2"
-          >
-            EDIT SITE <ExternalLink size={12} />
-          </button>
-        </div>
+        
+        <div className="h-4 w-px bg-white/10 mx-1" />
+        
+        <button 
+          onClick={() => navigate(`/editor/${id}`)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 group border border-blue-400/20"
+        >
+          RETURN TO EDITOR <ExternalLink size={12} className="group-hover:translate-x-0.5 transition-transform" />
+        </button>
       </div>
 
-      <div className="flex-1 bg-[#0d0d14] overflow-auto flex flex-col items-center p-4 md:p-8 scrollbar-hide relative">
+      <div className="h-screen w-full flex flex-col items-center relative overflow-auto scrollbar-hide bg-[#020204]">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
           style={{ 
             width: containerWidths[device],
-            transform: 'translate3d(0,0,0)', // Contain fixed elements to the simulated device
+            minHeight: '100%',
             isolation: 'isolate'
           }}
-          className="bg-white text-black shadow-2xl transition-all duration-500 min-h-screen overflow-x-hidden relative z-10"
+          className="bg-white text-black shadow-2xl transition-all duration-500 overflow-x-hidden relative z-10"
         >
           {renderElements(rootIds)}
         </motion.div>

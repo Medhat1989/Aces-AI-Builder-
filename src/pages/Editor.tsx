@@ -110,8 +110,22 @@ export default function Editor() {
   };
 
   const handlePreview = () => {
-    localStorage.setItem(`preview_data_${id}`, JSON.stringify(elements));
-    window.open(`/preview/${id}`, '_blank');
+    const previewId = id || 'default';
+    try {
+      localStorage.setItem(`preview_data_${previewId}`, JSON.stringify(elements));
+      // Use absolute path to ensure correct routing in different environments
+      const previewUrl = `${window.location.origin}/preview/${previewId}`;
+      const newWindow = window.open(previewUrl, '_blank');
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // Fallback if popup is blocked
+        navigate(`/preview/${previewId}`);
+      }
+    } catch (e) {
+      console.error('Preview error:', e);
+      // Fallback for quota or other errors
+      navigate(`/preview/${previewId}`);
+    }
   };
 
   const handleDashboard = () => {

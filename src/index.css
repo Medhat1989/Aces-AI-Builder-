@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
@@ -55,4 +55,86 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes oil-slick {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-grid-white {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.metallic-radial-gradient {
+  background: radial-gradient(circle at center, #CCCCCC 0%, #333333 100%);
+  color: #000000;
+}
+
+.metallic-radial-gradient:hover {
+  background: radial-gradient(circle at center, #DDDDDD 0%, #444444 100%);
+}
+
+.silver-gradient-text {
+  background: linear-gradient(
+    110deg,
+    #A6A6A6 0%,
+    #A6A6A6 45%,
+    #E6E6E6 50%,
+    #A6A6A6 55%,
+    #A6A6A6 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  animation: shimmer-sweep 8s linear infinite;
+}
+
+@keyframes orbit {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+.animate-orbit {
+  animation: orbit 60s linear infinite;
+}
+
+.pause-animation {
+  animation-play-state: paused;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+@keyframes shimmer-sweep {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.oil-slick-text {
+  background: linear-gradient(
+    90deg,
+    #00f2ff,
+    #7000ff,
+    #00ff95,
+    #ff00ea,
+    #00d4ff,
+    #7000ff
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+  animation: oil-slick 12s linear infinite;
 }
