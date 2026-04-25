@@ -114,13 +114,19 @@ export default function Editor() {
   const handlePreview = () => {
     const previewId = id || 'default';
     try {
-      localStorage.setItem(`preview_data_${previewId}`, JSON.stringify(elements));
-      // Use absolute path with mode=live for a polished full-page preview
+      if (elements && Object.keys(elements).length > 0) {
+        localStorage.setItem(`preview_data_${previewId}`, JSON.stringify(elements));
+      }
+      
       const previewUrl = `${window.location.origin}/preview/${previewId}?mode=live`;
-      window.open(previewUrl, '_blank');
+      const win = window.open(previewUrl, '_blank');
+      
+      // Fallback if window.open is blocked by browser
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        navigate(`/preview/${previewId}?mode=live`);
+      }
     } catch (e) {
       console.error('Preview error:', e);
-      // Fallback to internal navigation if window.open is blocked
       navigate(`/preview/${previewId}?mode=live`);
     }
   };

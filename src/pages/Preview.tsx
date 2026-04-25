@@ -215,6 +215,14 @@ export default function Preview() {
     });
   };
 
+  if (!elements || Object.keys(elements).length === 0) {
+    return (
+      <div className="min-h-screen bg-[#020204] flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   const allChildren = (Object.values(elements) as EditableElement[]).flatMap(e => e.children || []);
   const rootIds = Object.keys(elements).filter(id => !allChildren.includes(id));
 

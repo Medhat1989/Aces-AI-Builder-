@@ -206,7 +206,8 @@ export default function Gallery() {
                            <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              window.open(`/preview/${template.id}?mode=live`, '_blank');
+                              const previewUrl = `${window.location.origin}/preview/${template.id}?mode=live`;
+                              window.open(previewUrl, '_blank');
                             }}
                             className="py-2 bg-white/[0.03] border border-white/5 rounded-lg text-[10px] font-medium hover:bg-white/[0.08] transition-all flex items-center justify-center gap-1.5"
                           >
