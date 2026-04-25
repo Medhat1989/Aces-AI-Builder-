@@ -1,15 +1,23 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { Play, Edit3, Globe, Plus, ChevronRight, ArrowUpRight, Zap } from 'lucide-react';
+import { Play, Edit3, Globe, Plus, ChevronRight, ArrowUpRight, Zap, Search } from 'lucide-react';
 import { HONDA_TEMPLATES, LOGO_URL } from '../constants';
 
 import { BentoFeatures } from '../components/BentoFeatures';
 import { RoleSuperpowers } from '../components/RoleSuperpowers';
+import Footer from '../components/Footer';
 
 export default function Gallery() {
   const navigate = useNavigate();
   const [isPaused, setIsPaused] = React.useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredTemplates = HONDA_TEMPLATES.filter(template => 
+    template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    template.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-[#000000] text-white font-sans overflow-x-hidden flex flex-col relative" style={{ perspective: "2000px" }}>
@@ -49,7 +57,7 @@ export default function Gallery() {
       <header className="fixed top-0 w-full h-16 px-8 flex items-center justify-between border-b border-white/10 backdrop-blur-md z-40 bg-black/20">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
           <div className="relative">
-            <img src={LOGO_URL} alt="AcesAds" className="h-10 relative z-10" referrerPolicy="no-referrer" />
+            <img src={LOGO_URL} alt="AcesAds" className="h-10 relative z-10" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
           </div>
         </div>
         
@@ -92,6 +100,43 @@ export default function Gallery() {
           <p className="text-white/40 text-base max-w-xl leading-relaxed mt-2">Ultra-modern dealership frameworks engineered for the US market. Powered by AcesAds AI for instant customization.</p>
         </motion.div>
 
+        {/* Search Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="px-8 max-w-2xl mx-auto w-full relative z-30"
+        >
+          <div className="relative group">
+            <div className="absolute inset-0 bg-blue-500/20 blur-xl group-hover:bg-blue-500/30 transition-all rounded-full opacity-0 group-focus-within:opacity-100"></div>
+            <div className="relative flex items-center bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-full px-6 py-4 focus-within:border-blue-500/50 transition-all shadow-2xl">
+              <Search className="w-5 h-5 text-white/40 mr-4 group-focus-within:text-blue-400 transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search premium templates (e.g. Luxury, Sport, Minimalist)..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none w-full text-white placeholder:text-white/20 text-sm md:text-base font-medium"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="text-white/40 hover:text-white text-xs font-bold px-2 ml-2"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+          {searchQuery && (
+            <div className="mt-3 text-center">
+              <p className="text-white/40 text-xs font-medium">
+                Found {filteredTemplates.length} {filteredTemplates.length === 1 ? 'template' : 'templates'} for "{searchQuery}"
+              </p>
+            </div>
+          )}
+        </motion.div>
+
         {/* 3D Template Showcase Section (Orbiting Galaxy Effect) */}
         <section className="relative h-[750px] w-full flex items-center justify-center mt-12 mb-24 perspective-[2000px] overflow-visible">
           {/* Central Galaxy Glow (replacing the ball) */}
@@ -118,10 +163,10 @@ export default function Gallery() {
               animationDuration: '60s' // Slower, more majestic galaxy feel
             }}
           >
-            {HONDA_TEMPLATES.map((template, idx) => {
-              const total = HONDA_TEMPLATES.length;
+            {filteredTemplates.length > 0 ? filteredTemplates.map((template, idx) => {
+              const total = filteredTemplates.length;
               const angle = (idx / total) * 360;
-              const radius = 550; // Larger orbit for 6 templates
+              const radius = total === 1 ? 0 : 550; // Larger orbit for 6 templates
 
               return (
                 <div 
@@ -144,6 +189,8 @@ export default function Gallery() {
                           alt={template.name} 
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                           referrerPolicy="no-referrer"
+                          loading="lazy"
+                          decoding="async"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-transparent z-10"></div>
                       </div>
@@ -159,7 +206,7 @@ export default function Gallery() {
                            <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              window.open(`/preview/${template.id}`, '_blank');
+                              window.open(`/preview/${template.id}?mode=live`, '_blank');
                             }}
                             className="py-2 bg-white/[0.03] border border-white/5 rounded-lg text-[10px] font-medium hover:bg-white/[0.08] transition-all flex items-center justify-center gap-1.5"
                           >
@@ -182,12 +229,27 @@ export default function Gallery() {
                   </motion.div>
                 </div>
               );
-            })}
+            }) : (
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                  <Search className="w-6 h-6 text-white/20" />
+                </div>
+                <h3 className="text-xl font-bold">No templates found</h3>
+                <p className="text-white/40 max-w-xs">Try searching for something else or browse our full collection.</p>
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="mt-2 text-blue-400 hover:text-blue-300 font-bold transition-colors"
+                >
+                  Clear search
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
         <BentoFeatures />
         <RoleSuperpowers />
+        <Footer />
       </main>
     </div>
   );

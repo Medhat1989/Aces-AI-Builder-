@@ -414,7 +414,7 @@ export default function AddPanel({ onAdd, isOpen, onClose, mediaLibrary }: AddPa
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -320, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="absolute top-0 left-20 bottom-0 w-80 bg-aces-black border-r border-white/5 z-[60] flex flex-col shadow-[20px_0_100px_rgba(0,0,0,0.8)] backdrop-blur-3xl overflow-hidden"
+          className="absolute top-0 left-0 bottom-0 w-80 bg-aces-black border-r border-white/5 z-[60] flex flex-col shadow-[20px_0_100px_rgba(0,0,0,0.8)] backdrop-blur-3xl overflow-hidden"
         >
           <div className="flex items-center justify-between p-6 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-3">

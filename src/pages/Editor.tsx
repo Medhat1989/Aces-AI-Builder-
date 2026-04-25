@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import TopBar from '../components/Editor/TopBar';
 import LeftPanel from '../components/Editor/LeftPanel';
 import RightPanel from '../components/Editor/RightPanel';
 import MainCanvas from '../components/Editor/MainCanvas';
 import AddPanel from '../components/Editor/AddPanel';
+import Footer from '../components/Footer';
 import { HONDA_TEMPLATES, LOGO_URL } from '../constants';
 import { EditableElement } from '../types';
 import { getInitialElements } from '../utils/templateUtils';
@@ -25,7 +27,7 @@ export default function Editor() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isAIPanelOpen, setIsAIPanelOpen] = useState(true);
-  const [activeTool, setActiveTool] = useState('Add');
+  const [activeTool, setActiveTool] = useState('');
 
   useEffect(() => {
     const initial = getInitialElements(id || '');
@@ -113,18 +115,13 @@ export default function Editor() {
     const previewId = id || 'default';
     try {
       localStorage.setItem(`preview_data_${previewId}`, JSON.stringify(elements));
-      // Use absolute path to ensure correct routing in different environments
-      const previewUrl = `${window.location.origin}/preview/${previewId}`;
-      const newWindow = window.open(previewUrl, '_blank');
-      
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        // Fallback if popup is blocked
-        navigate(`/preview/${previewId}`);
-      }
+      // Use absolute path with mode=live for a polished full-page preview
+      const previewUrl = `${window.location.origin}/preview/${previewId}?mode=live`;
+      window.open(previewUrl, '_blank');
     } catch (e) {
       console.error('Preview error:', e);
-      // Fallback for quota or other errors
-      navigate(`/preview/${previewId}`);
+      // Fallback to internal navigation if window.open is blocked
+      navigate(`/preview/${previewId}?mode=live`);
     }
   };
 
@@ -184,42 +181,61 @@ export default function Editor() {
       />
       
       <div className="flex-1 flex overflow-hidden relative">
-        <LeftPanel onAddMedia={addElement} activeTool={activeTool} onToolChange={setActiveTool} />
-        
-        <AddPanel 
-          isOpen={activeTool === 'Add'} 
-          onClose={() => setActiveTool('')} 
-          onAdd={addElement}
-          mediaLibrary={mediaLibrary}
-        />
-        
-        <div className="flex-1 overflow-auto bg-[#050507] flex flex-col items-center p-12 scrollbar-hide relative transition-colors duration-700">
-          {/* Landio Aura - Background Glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[500px] landio-aura pointer-events-none"></div>
+        <PanelGroup direction="horizontal" className="h-full w-full">
+          <Panel defaultSize={8} minSize={6} maxSize={15} className="relative">
+            <LeftPanel onAddMedia={addElement} activeTool={activeTool} onToolChange={setActiveTool} />
+          </Panel>
           
-          <MainCanvas 
-            elements={elements} 
-            selectedId={selectedId} 
-            setSelectedId={setSelectedId} 
-            device={device}
-            updateElement={updateElement}
-            deleteElement={deleteElement}
-            mediaLibrary={mediaLibrary}
-            onAddMedia={addElement}
-          />
-        </div>
-        
-        <RightPanel 
-          selectedId={selectedId} 
-          elements={elements} 
-          activeTool={activeTool}
-          updateElement={updateElement}
-          deleteElement={deleteElement}
-          isAIPanelOpen={isAIPanelOpen}
-          setIsAIPanelOpen={setIsAIPanelOpen}
-          mediaLibrary={mediaLibrary}
-          onAddMedia={addElement}
-        />
+          <PanelResizeHandle className="w-1.5 bg-white/[0.05] hover:bg-landio-purple/30 transition-colors cursor-col-resize z-50 relative group">
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-white/20 group-hover:bg-landio-purple/50 transition-colors" />
+          </PanelResizeHandle>
+
+          <Panel defaultSize={67} minSize={40} className="relative">
+            <AddPanel 
+              isOpen={activeTool === 'Add'} 
+              onClose={() => setActiveTool('')} 
+              onAdd={addElement}
+              mediaLibrary={mediaLibrary}
+            />
+            
+            <div className="h-full overflow-auto bg-[#050507] flex flex-col items-center p-12 scrollbar-hide relative transition-colors duration-700">
+              {/* Landio Aura - Background Glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[500px] landio-aura pointer-events-none"></div>
+              
+              <MainCanvas 
+                elements={elements} 
+                selectedId={selectedId} 
+                setSelectedId={setSelectedId} 
+                device={device}
+                updateElement={updateElement}
+                deleteElement={deleteElement}
+                mediaLibrary={mediaLibrary}
+                onAddMedia={addElement}
+              />
+              <div className="w-full mt-20 pb-20">
+                <Footer />
+              </div>
+            </div>
+          </Panel>
+
+          <PanelResizeHandle className="w-1.5 bg-white/[0.05] hover:bg-landio-purple/30 transition-colors cursor-col-resize z-50 relative group">
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-white/20 group-hover:bg-landio-purple/50 transition-colors" />
+          </PanelResizeHandle>
+
+          <Panel defaultSize={25} minSize={15} maxSize={45} className="relative">
+            <RightPanel 
+              selectedId={selectedId} 
+              elements={elements} 
+              activeTool={activeTool}
+              updateElement={updateElement}
+              deleteElement={deleteElement}
+              isAIPanelOpen={isAIPanelOpen}
+              setIsAIPanelOpen={setIsAIPanelOpen}
+              mediaLibrary={mediaLibrary}
+              onAddMedia={addElement}
+            />
+          </Panel>
+        </PanelGroup>
       </div>
     </div>
   );

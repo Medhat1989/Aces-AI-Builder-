@@ -102,7 +102,7 @@ export default function RightPanel({
   };
 
   return (
-    <div className={`bg-aces-black border-l border-aces-border flex flex-col shrink-0 flex-none z-40 transition-all duration-500 backdrop-blur-2xl ${isAIPanelOpen ? 'w-80' : 'w-12'}`}>
+    <div className={`bg-aces-black border-l border-aces-border flex flex-col w-full h-full min-w-[200px] z-40 transition-all duration-500 backdrop-blur-2xl`}>
       {/* Header Tabs */}
       <div className="flex h-16 border-b border-aces-border bg-black/20">
         <button 

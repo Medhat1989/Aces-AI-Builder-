@@ -362,6 +362,8 @@ export default function MainCanvas({
               alt="User Uploaded" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
             />
             {isSelected && (
               <>
@@ -672,7 +674,7 @@ export default function MainCanvas({
                     }}
                     className="group relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all shadow-lg"
                   >
-                    <img src={url} alt="Gallery item" className="w-full h-full object-cover transition-transform group-hover:scale-110" referrerPolicy="no-referrer" />
+                    <img src={url} alt="Gallery item" className="w-full h-full object-cover transition-transform group-hover:scale-110" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                        <Check size={24} className="text-white" />
                     </div>

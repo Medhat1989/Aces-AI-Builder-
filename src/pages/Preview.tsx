@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
   ChevronLeft, Monitor, Tablet, Smartphone, ExternalLink, 
@@ -38,30 +38,33 @@ const ICON_COMPONENTS: Record<string, any> = {
 import { HONDA_TEMPLATES } from '../constants';
 import { EditableElement } from '../types';
 import { getInitialElements } from '../utils/templateUtils';
+import Footer from '../components/Footer';
 
 export default function Preview() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isLiveMode = searchParams.get('mode') === 'live';
+  
   const template = HONDA_TEMPLATES.find(t => t.id === id) || HONDA_TEMPLATES[0];
   const [elements, setElements] = useState<Record<string, EditableElement>>({});
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   useEffect(() => {
+    if (!id) return;
     try {
       const saved = localStorage.getItem(`preview_data_${id}`);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
           setElements(parsed);
-        } else {
-          setElements(getInitialElements(id || ''));
+          return;
         }
-      } else {
-        setElements(getInitialElements(id || ''));
       }
+      setElements(getInitialElements(id));
     } catch (e) {
       console.error('Error loading preview data:', e);
-      setElements(getInitialElements(id || ''));
+      setElements(getInitialElements(id));
     }
   }, [id]);
 
@@ -72,6 +75,7 @@ export default function Preview() {
   };
 
   const renderElements = (elementIds: string[]) => {
+    if (!elementIds || !elements) return null;
     return elementIds.map(elId => {
       const el = elements[elId];
       if (!el) return null;
@@ -130,6 +134,8 @@ export default function Preview() {
               alt="" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
             />
           </motion.div>
         );
@@ -213,58 +219,63 @@ export default function Preview() {
   const rootIds = Object.keys(elements).filter(id => !allChildren.includes(id));
 
   return (
-    <div className="min-h-screen bg-[#020204] font-sans overflow-hidden">
+    <div className={`min-h-screen font-sans overflow-hidden ${isLiveMode ? 'bg-white' : 'bg-[#020204]'}`}>
       {/* Floating Control Panel */}
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 p-1.5 bg-[#0B0C11]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
-        <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
+      {!isLiveMode && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 p-1.5 bg-[#0B0C11]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+          <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
+            <button 
+              onClick={() => setDevice('desktop')}
+              className={`p-2 rounded-lg transition-all ${device === 'desktop' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
+              title="Desktop View"
+            >
+              <Monitor size={14} />
+            </button>
+            <button 
+              onClick={() => setDevice('tablet')}
+              className={`p-2 rounded-lg transition-all ${device === 'tablet' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
+              title="Tablet View"
+            >
+              <Tablet size={14} />
+            </button>
+            <button 
+              onClick={() => setDevice('mobile')}
+              className={`p-2 rounded-lg transition-all ${device === 'mobile' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
+              title="Mobile View"
+            >
+              <Smartphone size={14} />
+            </button>
+          </div>
+          
+          <div className="h-4 w-px bg-white/10 mx-1" />
+          
           <button 
-            onClick={() => setDevice('desktop')}
-            className={`p-2 rounded-lg transition-all ${device === 'desktop' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
-            title="Desktop View"
+            onClick={() => navigate(`/editor/${id}`)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 group border border-blue-400/20"
           >
-            <Monitor size={14} />
-          </button>
-          <button 
-            onClick={() => setDevice('tablet')}
-            className={`p-2 rounded-lg transition-all ${device === 'tablet' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
-            title="Tablet View"
-          >
-            <Tablet size={14} />
-          </button>
-          <button 
-            onClick={() => setDevice('mobile')}
-            className={`p-2 rounded-lg transition-all ${device === 'mobile' ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}
-            title="Mobile View"
-          >
-            <Smartphone size={14} />
+            RETURN TO EDITOR <ExternalLink size={12} className="group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
-        
-        <div className="h-4 w-px bg-white/10 mx-1" />
-        
-        <button 
-          onClick={() => navigate(`/editor/${id}`)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 group border border-blue-400/20"
-        >
-          RETURN TO EDITOR <ExternalLink size={12} className="group-hover:translate-x-0.5 transition-transform" />
-        </button>
-      </div>
+      )}
 
-      <div className="h-screen w-full flex flex-col items-center relative overflow-auto scrollbar-hide bg-[#020204]">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className={`h-screen w-full flex flex-col items-center relative overflow-auto scrollbar-hide ${isLiveMode ? 'bg-white' : 'bg-[#020204]'}`}>
+        {!isLiveMode && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+        )}
 
         <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
+          initial={isLiveMode ? false : { opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
           style={{ 
-            width: containerWidths[device],
+            width: isLiveMode ? '100%' : containerWidths[device],
             minHeight: '100%',
             isolation: 'isolate'
           }}
-          className="bg-white text-black shadow-2xl transition-all duration-500 overflow-x-hidden relative z-10"
+          className={`${isLiveMode ? '' : 'bg-white text-black shadow-2xl my-20 rounded-lg'} transition-all duration-500 overflow-x-hidden relative z-10`}
         >
           {renderElements(rootIds)}
+          <Footer />
         </motion.div>
       </div>
     </div>

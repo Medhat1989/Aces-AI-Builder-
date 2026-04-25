@@ -46,7 +46,7 @@ export default function LeftPanel({ onAddMedia, activeTool, onToolChange }: Left
   ];
 
   return (
-    <div className="w-20 bg-aces-black border-r border-aces-border flex flex-col items-center py-8 gap-10 shrink-0 z-40 backdrop-blur-2xl transition-all duration-500">
+    <div className="w-full h-full min-w-[70px] bg-aces-black border-r border-aces-border flex flex-col items-center py-8 gap-10 z-40 backdrop-blur-2xl transition-all duration-500">
       <input 
         type="file" 
         ref={fileInputRef} 

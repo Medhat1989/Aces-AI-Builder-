@@ -440,6 +440,6 @@ export const getInitialElements = (templateId: string): Record<string, EditableE
     },
     'wheel-title': { id: 'wheel-title', type: 'text', content: 'Precision in Every Turn', style: { color: 'white', fontSize: '32px', fontWeight: '900', textAlign: 'center' } },
     'wheel-graphic': { id: 'wheel-graphic', type: 'container', content: '', style: { height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }, children: [] },
-    'footer': { id: 'footer', type: 'text', content: '© 2026 Honda Automobile Dealer. Powered by AcesAds.', style: { backgroundColor: '#111', color: '#666', padding: '40px', textAlign: 'center', fontSize: '10px', fontWeight: 'bold' } }
+    'footer': { id: 'footer', type: 'text', content: '© 2026 Honda Automobile Dealer. All Rights Reserved.', style: { backgroundColor: '#111', color: '#666', padding: '40px', textAlign: 'center', fontSize: '10px', fontWeight: 'bold' } }
   };
 };
